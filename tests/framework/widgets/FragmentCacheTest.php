@@ -86,6 +86,69 @@ class FragmentCacheTest extends \yiiunit\TestCase
         $this->assertEquals($expectedLevel, ob_get_level(), 'Output buffer not closed correctly.');
     }
 
+    public function testSingleDynamicFragment()
+    {
+        Yii::$app->params['counter'] = 0;
+
+        $view = new View();
+
+        for ($counter = 0; $counter < 42; $counter++) {
+            ob_start();
+            ob_implicit_flush(false);
+
+            $cacheUnavailable = $view->beginCache('test');
+
+            if ($counter === 0) {
+                $this->assertTrue($cacheUnavailable);
+            } else {
+                $this->assertFalse($cacheUnavailable);
+            }
+
+            if ($cacheUnavailable) {
+                echo 'dynamic cached fragment ';
+                echo $view->renderDynamic('return \Yii::$app->params["counter"]++;');
+                $view->endCache();
+            }
+
+            $expectedContent = vsprintf('dynamic cached fragment %d', [
+                $counter,
+            ]);
+            $this->assertEquals($expectedContent, ob_get_clean());
+        }
+   }
+
+    public function testMultipleDynamicFragments()
+    {
+        Yii::$app->params['counter'] = 0;
+
+        $view = new View();
+
+        for ($counter = 0; $counter < 42; $counter++) {
+            ob_start();
+            ob_implicit_flush(false);
+
+            $cacheUnavailable = $view->beginCache('test');
+
+            if ($counter === 0) {
+                $this->assertTrue($cacheUnavailable);
+            } else {
+                $this->assertFalse($cacheUnavailable);
+            }
+
+            if ($cacheUnavailable) {
+                echo 'dynamic cached fragment ';
+                echo $view->renderDynamic('return \Yii::$app->params["counter"] * 42;');
+                echo $view->renderDynamic('return \Yii::$app->params["counter"]++;');
+                $view->endCache();
+            }
+
+            $expectedContent = vsprintf('dynamic cached fragment %d%d', [
+                $counter * 42,
+                $counter,
+            ]);
+            $this->assertEquals($expectedContent, ob_get_clean());
+        }
+   }
 
     // TODO test dynamic replacements
 }
