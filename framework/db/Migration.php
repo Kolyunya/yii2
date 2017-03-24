@@ -91,53 +91,20 @@ class Migration extends Component implements MigrationInterface
      */
     public function up()
     {
-        $transaction = $this->db->beginTransaction();
-        try {
-            if ($this->safeUp() === false) {
-                $transaction->rollBack();
-                return false;
-            }
-            $transaction->commit();
-        } catch (\Exception $e) {
-            $this->printException($e);
-            $transaction->rollBack();
-            return false;
-        } catch (\Throwable $e) {
-            $this->printException($e);
-            $transaction->rollBack();
-            return false;
-        }
-
-        return null;
     }
 
     /**
      * This method contains the logic to be executed when removing this migration.
-     * The default implementation throws an exception indicating the migration cannot be removed.
+     * The default implementation returns `false` indicating the migration cannot be removed.
      * Child classes may override this method if the corresponding migrations can be removed.
      * @return bool return a false value to indicate the migration fails
      * and should not proceed further. All other return values mean the migration succeeds.
      */
     public function down()
     {
-        $transaction = $this->db->beginTransaction();
-        try {
-            if ($this->safeDown() === false) {
-                $transaction->rollBack();
-                return false;
-            }
-            $transaction->commit();
-        } catch (\Exception $e) {
-            $this->printException($e);
-            $transaction->rollBack();
-            return false;
-        } catch (\Throwable $e) {
-            $this->printException($e);
-            $transaction->rollBack();
-            return false;
-        }
+        printf('%s can not be reverted.\n";', static::className());
 
-        return null;
+        return false;
     }
 
     /**
@@ -147,32 +114,6 @@ class Migration extends Component implements MigrationInterface
     {
         echo 'Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ':' . $e->getLine() . ")\n";
         echo $e->getTraceAsString() . "\n";
-    }
-
-    /**
-     * This method contains the logic to be executed when applying this migration.
-     * This method differs from [[up()]] in that the DB logic implemented here will
-     * be enclosed within a DB transaction.
-     * Child classes may implement this method instead of [[up()]] if the DB logic
-     * needs to be within a transaction.
-     * @return bool return a false value to indicate the migration fails
-     * and should not proceed further. All other return values mean the migration succeeds.
-     */
-    public function safeUp()
-    {
-    }
-
-    /**
-     * This method contains the logic to be executed when removing this migration.
-     * This method differs from [[down()]] in that the DB logic implemented here will
-     * be enclosed within a DB transaction.
-     * Child classes may implement this method instead of [[down()]] if the DB logic
-     * needs to be within a transaction.
-     * @return bool return a false value to indicate the migration fails
-     * and should not proceed further. All other return values mean the migration succeeds.
-     */
-    public function safeDown()
-    {
     }
 
     /**
